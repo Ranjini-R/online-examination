@@ -1,0 +1,137 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+
+class Student {
+    private String studentId;
+    private String password;
+
+    public Student(String studentId, String password) {
+        this.studentId = studentId;
+        this.password = password;
+    }
+
+    public String getStudentId() {
+        return studentId;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+}
+
+class ExamQuestion {
+    private String questionText;
+    private List<String> answerOptions;
+    private int correctAnswerIndex;
+
+    public ExamQuestion(String questionText, List<String> answerOptions, int correctAnswerIndex) {
+        this.questionText = questionText;
+        this.answerOptions = answerOptions;
+        this.correctAnswerIndex = correctAnswerIndex;
+    }
+
+    public String getQuestionText() {
+        return questionText;
+    }
+
+    public List<String> getAnswerOptions() {
+        return answerOptions;
+    }
+
+    public int getCorrectAnswerIndex() {
+        return correctAnswerIndex;
+    }
+}
+
+public class OnlineExamSystem {
+    private static Map<String, Student> students = new HashMap<>();
+    private static List<ExamQuestion> examQuestions = new ArrayList<>();
+
+    public static void main(String[] args) {
+        initializeStudents();
+        initializeExamQuestions();
+
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Welcome to the Online Exam System!");
+
+        // Student authentication
+        Student authenticatedStudent = authenticateStudent(scanner);
+        if (authenticatedStudent == null) {
+            System.out.println("Authentication failed. Exiting.");
+            return;
+        }
+
+        // Start the exam
+        System.out.println("Welcome, Student ID " + authenticatedStudent.getStudentId() + "! Let's begin the exam.");
+
+        int score = conductOnlineExam(scanner);
+
+        System.out.println("Your exam is complete. Your score is: " + score);
+
+        scanner.close();
+    }
+
+    private static void initializeStudents() {
+        students.put("123456", new Student("123456", "password1"));
+        students.put("789012", new Student("789012", "password2"));
+        // Add more students as needed
+    }
+
+    private static void initializeExamQuestions() {
+        List<String> options1 = List.of("A. Java", "B. C++", "C. Python", "D. JavaScript");
+        examQuestions.add(new ExamQuestion("Which programming language is commonly used for web development?", options1, 3));
+
+        List<String> options2 = List.of("A. Mercury", "B. Venus", "C. Mars", "D. Jupiter");
+        examQuestions.add(new ExamQuestion("Which planet is known as the 'Red Planet'?", options2, 2));
+
+        // Add more exam questions as needed
+    }
+
+    private static Student authenticateStudent(Scanner scanner) {
+        System.out.print("Enter your Student ID: ");
+        String studentId = scanner.nextLine();
+        System.out.print("Enter your password: ");
+        String password = scanner.nextLine();
+
+        Student student = students.get(studentId);
+        if (student != null && student.getPassword().equals(password)) {
+            return student;
+        } else {
+            System.out.println("Invalid credentials.");
+            return null;
+        }
+    }
+
+    private static int conductOnlineExam(Scanner scanner) {
+        int score = 0;
+
+        for (ExamQuestion question : examQuestions) {
+            System.out.println("\nQuestion: " + question.getQuestionText());
+            for (String option : question.getAnswerOptions()) {
+                System.out.println(option);
+            }
+
+            System.out.print("Your answer (Enter the option letter): ");
+            char userAnswer = scanner.nextLine().toUpperCase().charAt(0);
+
+            int userAnswerIndex = userAnswer - 'A';
+            if (userAnswerIndex >= 0 && userAnswerIndex < question.getAnswerOptions().size()) {
+                if (userAnswerIndex == question.getCorrectAnswerIndex()) {
+                    System.out.println("Correct!");
+                    score++;
+                } else {
+                    System.out.println("Incorrect. The correct answer is: " +
+                            question.getAnswerOptions().get(question.getCorrectAnswerIndex()));
+                }
+            } else {
+                System.out.println("Invalid option. Skipping question.");
+            }
+        }
+
+        return score;
+    }
+}
